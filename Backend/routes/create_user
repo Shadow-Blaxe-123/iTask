@@ -1,0 +1,36 @@
+// All the imports
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+// Salt for hashing.
+const saltRounds = 10;
+
+
+
+
+
+router.post('/create-user', async (req, res) => {
+    // Creating hash using bcrypt.
+    let hash = bcrypt.hash(req.body.password, saltRounds);
+    const user = new User(
+        {
+            name: req.body.name,
+            password: await hash,
+            email: req.body.email,
+            completed: req.body.completed
+        }
+    );
+    await user.save().then(()=>{
+        
+    }).catch((err)=>{
+        if(err.code === 11000){
+            res.status(409).send("User exists")
+        }
+    });
+    
+  })
+
+module.exports = router
